@@ -14,7 +14,11 @@ while cap.isOpened():
     if k == 27:
         break
     elif k == ord('s'): # wait for 's' key to save and exit
-        cv2.imwrite('C:/Users/nhoei/liveCameraPose/calibration/image' + str(num) + '.png', img)
+        cv2.imwrite(
+            f'C:/Users/nhoei/liveCameraPose/calibration/image{str(num)}.png',
+            img,
+        )
+
         print("image saved!")
         num += 1
 

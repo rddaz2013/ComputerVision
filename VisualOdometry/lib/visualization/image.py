@@ -12,13 +12,13 @@ def put_text(image, org, text, color=(0, 0, 255), fontScale=0.7, thickness=1, fo
 
         place_h, place_w = org.split("_")
 
-        if place_h == "top":
-            org_h = label_height
-        elif place_h == "bottom":
+        if place_h == "bottom":
             org_h = h
         elif place_h == "center":
             org_h = h // 2 + label_height // 2
 
+        elif place_h == "top":
+            org_h = label_height
         if place_w == "left":
             org_w = 0
         elif place_w == "right":
@@ -35,9 +35,15 @@ def put_text(image, org, text, color=(0, 0, 255), fontScale=0.7, thickness=1, fo
 
 def draw_matches(img1, kp1, img2, kp2, matches):
     matches = sorted(matches, key=lambda x: x.distance)
-    vis_img = cv2.drawMatches(img1, kp1, img2, kp2, matches, None,
-                              flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    return vis_img
+    return cv2.drawMatches(
+        img1,
+        kp1,
+        img2,
+        kp2,
+        matches,
+        None,
+        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
+    )
 
 
 def show_images(images, window_name='Image', image_title=None):
@@ -55,11 +61,7 @@ def show_images(images, window_name='Image', image_title=None):
         if len(image.shape) == 2:
             image_c = cv2.cvtColor(image_c, cv2.COLOR_GRAY2BGR)
 
-        if image_title is None:
-            image_title_show = f"{i}"
-        else:
-            image_title_show = image_title
-
+        image_title_show = f"{i}" if image_title is None else image_title
         image_c = put_text(image_c, "top_center", image_title_show)
         cv2.imshow(window_name, image_c)
         cv2.waitKey(0)
@@ -75,9 +77,10 @@ def draw_face_boxs(image, faces, fontScale=0.7, text_thickness=1, line_thickness
 
 
 def create_face_collage(image, faces, fontScale=0.5, text_thickness=1, face_size=(100, 100)):
-    faces_sub = []
-    for i, (v, u, w, h) in enumerate(faces):
-        faces_sub.append(cv2.resize(image[u:u + h, v:v + w], dsize=face_size))
+    faces_sub = [
+        cv2.resize(image[u : u + h, v : v + w], dsize=face_size)
+        for v, u, w, h in faces
+    ]
 
     rows = int(np.ceil(np.sqrt(len(faces_sub))))
     cols = int(np.ceil(len(faces_sub) / rows))

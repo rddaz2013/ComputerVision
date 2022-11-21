@@ -21,7 +21,7 @@ from cycler import cycle
 class CameraPoses():
     
     def __init__(self, data_dir, skip_frames, intrinsic):
-        
+
         self.K = intrinsic
         self.extrinsic = np.array(((1,0,0,0),(0,1,0,0),(0,0,1,0)))
         self.P = self.K @ self.extrinsic
@@ -30,7 +30,7 @@ class CameraPoses():
         index_params = dict(algorithm=FLANN_INDEX_LSH, table_number=6, key_size=12, multi_probe_level=1)
         search_params = dict(checks=50)
         self.flann = cv2.FlannBasedMatcher(indexParams=index_params, searchParams=search_params)
-        
+
         self.world_points = []
 
         self.current_pose = None
@@ -63,52 +63,45 @@ class CameraPoses():
         return np.array(self.world_points)
     
     def get_matches(self, img1, img2):
-   
+       
         # Find the keypoints and descriptors with ORB
         kp1, des1 = self.orb.detectAndCompute(img1, None)
         kp2, des2 = self.orb.detectAndCompute(img2, None)
-        # Find matches
-        if len(kp1) > 6 and len(kp2) > 6:
-            matches = self.flann.knnMatch(des1, des2, k=2)
-
-            # Find the matches there do not have a to high distance
-            good_matches = []
-            try:
-                for m, n in matches:
-                    if m.distance < 0.5 * n.distance:
-                        good_matches.append(m)
-            except ValueError:
-                pass
-            
-            # Draw matches
-            img_matches = np.empty((max(img1.shape[0], img2.shape[0]), img1.shape[1] + img2.shape[1], 3), dtype=np.uint8)
-            #cv2.drawMatches(img1, kp1, img2, kp2, good_matches, img_matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
-    
-            #cv2.imshow('Good Matches', img_matches)
-            #cv2.waitKey(50)
-            
-            # Get the image points form the good matches
-            #q1 = [kp1[m.queryIdx] for m in good_matches]
-            #q2 = [kp2[m.trainIdx] for m in good_matches]
-            q1 = np.float32([kp1[m.queryIdx].pt for m in good_matches])
-            q2 = np.float32([kp2[m.trainIdx].pt for m in good_matches])
-        
-            return q1, q2
-        else:
+        if len(kp1) <= 6 or len(kp2) <= 6:
             return None, None
+        matches = self.flann.knnMatch(des1, des2, k=2)
+
+        # Find the matches there do not have a to high distance
+        good_matches = []
+        try:
+            good_matches.extend(m for m, n in matches if m.distance < 0.5 * n.distance)
+        except ValueError:
+            pass
+
+        # Draw matches
+        img_matches = np.empty((max(img1.shape[0], img2.shape[0]), img1.shape[1] + img2.shape[1], 3), dtype=np.uint8)
+        #cv2.drawMatches(img1, kp1, img2, kp2, good_matches, img_matches, flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS)
+
+        #cv2.imshow('Good Matches', img_matches)
+        #cv2.waitKey(50)
+
+        # Get the image points form the good matches
+        #q1 = [kp1[m.queryIdx] for m in good_matches]
+        #q2 = [kp2[m.trainIdx] for m in good_matches]
+        q1 = np.float32([kp1[m.queryIdx].pt for m in good_matches])
+        q2 = np.float32([kp2[m.trainIdx].pt for m in good_matches])
+
+        return q1, q2
 
     def get_pose(self, q1, q2):
-    
+
         # Essential matrix
         E, mask = cv2.findEssentialMat(q1, q2, self.K)
 
         # Decompose the Essential matrix into R and t
         R, t = self.decomp_essential_mat_old(E, q1, q2)
 
-        # Get transformation matrix
-        transformation_matrix = self._form_transf(R, np.squeeze(t))
-        
-        return transformation_matrix
+        return self._form_transf(R, np.squeeze(t))
 
 
     def decomp_essential_mat(self, E, q1, q2):
@@ -119,7 +112,7 @@ class CameraPoses():
         T3 = self._form_transf(R1,np.ndarray.flatten(-t))
         T4 = self._form_transf(R2,np.ndarray.flatten(-t))
         transformations = [T1, T2, T3, T4]
-        
+
         # Homogenize K
         K = np.concatenate((self.K, np.zeros((3,1)) ), axis = 1)
 
@@ -140,12 +133,12 @@ class CameraPoses():
             # Un-homogenize
             Q1 = hom_Q1[:3, :] / hom_Q1[3, :]
             Q2 = hom_Q2[:3, :] / hom_Q2[3, :]
-             
+
             total_sum = sum(Q2[2, :] > 0) + sum(Q1[2, :] > 0)
             relative_scale = np.mean(np.linalg.norm(Q1.T[:-1] - Q1.T[1:], axis=-1)/
                                      np.linalg.norm(Q2.T[:-1] - Q2.T[1:], axis=-1))
             positives.append(total_sum + relative_scale)
-            
+
 
         # Decompose the Essential matrix using built in OpenCV function
         # Form the 4 possible transformation matrix T from R1, R2, and t
@@ -259,7 +252,7 @@ cap = cv2.VideoCapture(0)
 # Check if camera opened successfully
 if cap.isOpened() == False:
   print("Error opening video stream")
-  
+
 
 process_frames = False
 old_frame = None
@@ -267,44 +260,44 @@ new_frame = None
 frame_counter = 0
 
 cur_pose = start_pose
-  
-while(cap.isOpened()):
+
+while (cap.isOpened()):
     
     # Capture frame-by-frame
     ret, new_frame = cap.read()
-    
+
     frame_counter += 1
-    
+
     start = time.perf_counter()
-    
-    if process_frames and ret:
-        q1, q2 = vo.get_matches(old_frame, new_frame)
-        if q1 is not None:
-            if len(q1) > 20 and len(q2) > 20:
+
+    if process_frames:
+        if ret:
+            q1, q2 = vo.get_matches(old_frame, new_frame)
+            if q1 is not None and len(q1) > 20 and len(q2) > 20:
                 transf = vo.get_pose(q1, q2)
                 cur_pose = cur_pose @ transf
-        
-        hom_array = np.array([[0,0,0,1]])
-        hom_camera_pose = np.concatenate((cur_pose,hom_array), axis=0)
-        camera_pose_list.append(hom_camera_pose)
-        estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
-        
-        estimated_camera_pose_x, estimated_camera_pose_y = cur_pose[0, 3], cur_pose[2, 3]
 
-    elif process_frames and ret is False:
-        break
-    
+            hom_array = np.array([[0,0,0,1]])
+            hom_camera_pose = np.concatenate((cur_pose,hom_array), axis=0)
+            camera_pose_list.append(hom_camera_pose)
+            estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
+
+            estimated_camera_pose_x, estimated_camera_pose_y = cur_pose[0, 3], cur_pose[2, 3]
+
+        elif ret is False:
+            break
+
     old_frame = new_frame
-    
+
     process_frames = True
-    
+
     end = time.perf_counter()
-    
+
     total_time = end - start
     fps = 1 / total_time
-    
+
     cv2.putText(new_frame, f'FPS: {int(fps)}', (20,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0,255,0), 2)
-    
+
     cv2.putText(new_frame, str(np.round(cur_pose[0, 0],2)), (260,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[0, 1],2)), (340,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[0, 2],2)), (420,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
@@ -314,18 +307,14 @@ while(cap.isOpened()):
     cv2.putText(new_frame, str(np.round(cur_pose[2, 0],2)), (260,130), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[2, 1],2)), (340,130), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[2, 2],2)), (420,130), cv2.FONT_HERSHEY_SIMPLEX, 1, (255, 0, 0), 1)
-    
+
     cv2.putText(new_frame, str(np.round(cur_pose[0, 3],2)), (540,50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[1, 3],2)), (540,90), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
     cv2.putText(new_frame, str(np.round(cur_pose[2, 3],2)), (540,130), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 1)
-    
-    
+
+
     cv2.imshow("img", new_frame)
-    
-    #if frame_counter % 20 == 0:
-        #print("FPS: ", fps)
-        #print("Frames: ", frame_counter)
-    
+
     # Press Q on keyboard to  exit
     if cv2.waitKey(25) & 0xFF == ord('q'):
         break
@@ -333,8 +322,8 @@ while(cap.isOpened()):
 # When everything done, release the video capture object
 cap.release()
 
-  
-  
+
+
 
 
 """for i in tqdm(range(number_of_frames)):

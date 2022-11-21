@@ -24,13 +24,13 @@ while cap.isOpened():
 
     # To improve performance
     image.flags.writeable = False
-    
+
     # Get the result
     results = face_mesh.process(image)
-    
+
     # To improve performance
     image.flags.writeable = True
-    
+
     # Convert the color space from RGB to BGR
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 
@@ -41,7 +41,7 @@ while cap.isOpened():
     if results.multi_face_landmarks:
         for face_landmarks in results.multi_face_landmarks:
             for idx, lm in enumerate(face_landmarks.landmark):
-                if idx == 33 or idx == 263 or idx == 1 or idx == 61 or idx == 291 or idx == 199:
+                if idx in [33, 263, 1, 61, 291, 199]:
                     if idx == 1:
                         nose_2d = (lm.x * img_w, lm.y * img_h)
                         nose_3d = (lm.x * img_w, lm.y * img_h, lm.z * 3000)
@@ -53,7 +53,7 @@ while cap.isOpened():
 
                     # Get the 3D Coordinates
                     face_3d.append([x, y, lm.z])       
-            
+
             # Convert it to the NumPy array
             face_2d = np.array(face_2d, dtype=np.float64)
 
@@ -83,7 +83,7 @@ while cap.isOpened():
             x = angles[0] * 360
             y = angles[1] * 360
             z = angles[2] * 360
-          
+
 
             # See where the user's head tilting
             if y < -10:
@@ -102,14 +102,41 @@ while cap.isOpened():
 
             p1 = (int(nose_2d[0]), int(nose_2d[1]))
             p2 = (int(nose_2d[0] + y * 10) , int(nose_2d[1] - x * 10))
-            
+
             cv2.line(image, p1, p2, (255, 0, 0), 3)
 
             # Add the text on the image
             cv2.putText(image, text, (20, 50), cv2.FONT_HERSHEY_SIMPLEX, 2, (0, 255, 0), 2)
-            cv2.putText(image, "x: " + str(np.round(x,2)), (500, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.putText(image, "y: " + str(np.round(y,2)), (500, 100), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            cv2.putText(image, "z: " + str(np.round(z,2)), (500, 150), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            cv2.putText(
+                image,
+                f"x: {str(np.round(x, 2))}",
+                (500, 50),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 255),
+                2,
+            )
+
+            cv2.putText(
+                image,
+                f"y: {str(np.round(y, 2))}",
+                (500, 100),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 255),
+                2,
+            )
+
+            cv2.putText(
+                image,
+                f"z: {str(np.round(z, 2))}",
+                (500, 150),
+                cv2.FONT_HERSHEY_SIMPLEX,
+                1,
+                (0, 0, 255),
+                2,
+            )
+
 
 
         end = time.time()

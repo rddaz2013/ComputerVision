@@ -20,7 +20,7 @@ with mp_hands.Hands(
         success, image = cap.read()
 
         start = time.time()
-   
+
 
         # Flip the image horizontally for a later selfie-view display
         # Convert the BGR image to RGB.

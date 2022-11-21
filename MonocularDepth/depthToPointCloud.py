@@ -25,7 +25,7 @@ midas.eval()
 # Load transforms to resize and normalize the image
 midas_transforms = torch.hub.load("intel-isl/MiDaS", "transforms")
 
-if model_type == "DPT_Large" or model_type == "DPT_Hybrid":
+if model_type in {"DPT_Large", "DPT_Hybrid"}:
     transform = midas_transforms.dpt_transform
 else:
     transform = midas_transforms.small_transform
@@ -78,7 +78,7 @@ while cap.isOpened():
 
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
-    
+
     depth_map = (depth_map*255).astype(np.uint8)
     depth_map = cv2.applyColorMap(depth_map , cv2.COLORMAP_MAGMA)
 

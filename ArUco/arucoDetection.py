@@ -32,12 +32,12 @@ def aruco_display(corners, ids, rejected, image):
 	if len(corners) > 0:
 		
 		ids = ids.flatten()
-		
+
 		for (markerCorner, markerID) in zip(corners, ids):
 			
 			corners = markerCorner.reshape((4, 2))
 			(topLeft, topRight, bottomRight, bottomLeft) = corners
-			
+
 			topRight = (int(topRight[0]), int(topRight[1]))
 			bottomRight = (int(bottomRight[0]), int(bottomRight[1]))
 			bottomLeft = (int(bottomLeft[0]), int(bottomLeft[1]))
@@ -47,15 +47,15 @@ def aruco_display(corners, ids, rejected, image):
 			cv2.line(image, topRight, bottomRight, (0, 255, 0), 2)
 			cv2.line(image, bottomRight, bottomLeft, (0, 255, 0), 2)
 			cv2.line(image, bottomLeft, topLeft, (0, 255, 0), 2)
-			
+
 			cX = int((topLeft[0] + bottomRight[0]) / 2.0)
 			cY = int((topLeft[1] + bottomRight[1]) / 2.0)
 			cv2.circle(image, (cX, cY), 4, (0, 0, 255), -1)
-			
+
 			cv2.putText(image, str(markerID),(topLeft[0], topLeft[1] - 10), cv2.FONT_HERSHEY_SIMPLEX,
 				0.5, (0, 255, 0), 2)
-			print("[Inference] ArUco marker ID: {}".format(markerID))
-			
+			print(f"[Inference] ArUco marker ID: {markerID}")
+
 	return image
 
 
@@ -74,16 +74,16 @@ cap.set(cv2.CAP_PROP_FRAME_WIDTH, 1280)
 cap.set(cv2.CAP_PROP_FRAME_HEIGHT, 720)
 
 
+width = 1000
 while cap.isOpened():
     
 	ret, img = cap.read()
 
 	h, w, _ = img.shape
 
-	width = 1000
 	height = int(width*(h/w))
 	img = cv2.resize(img, (width, height), interpolation=cv2.INTER_CUBIC)
- 
+
 	corners, ids, rejected = cv2.aruco.detectMarkers(img, arucoDict, parameters=arucoParams)
 
 	detected_markers = aruco_display(corners, ids, rejected, img)

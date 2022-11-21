@@ -32,13 +32,9 @@ def create_output(vertices, colors, filename):
 
 #Function that Downsamples image x number (reduce_factor) of times. 
 def downsample_image(image, reduce_factor):
-	for i in range(0,reduce_factor):
+	for _ in range(reduce_factor):
 		#Check if image is color or grayscale
-		if len(image.shape) > 2:
-			row,col = image.shape[:2]
-		else:
-			row,col = image.shape
-
+		row,col = image.shape[:2] if len(image.shape) > 2 else image.shape
 		image = cv2.pyrDown(image, dstsize= (col//2, row // 2))
 	return image
 
@@ -71,7 +67,7 @@ cv2.waitKey(0)
  # Undistort and rectify images
 imgR = cv2.remap(imgR, stereoMapR_x, stereoMapR_y, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
 imgL = cv2.remap(imgL, stereoMapL_x, stereoMapL_y, cv2.INTER_LANCZOS4, cv2.BORDER_CONSTANT, 0)
-                    
+
 # Show the frames
 cv2.imshow("frame right", imgR) 
 cv2.imshow("frame left", imgL)

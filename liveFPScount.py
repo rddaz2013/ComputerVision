@@ -36,8 +36,8 @@ while True:
 
     sum = 0
     N = 300
-    for i in range(0, N):
-        for j in range(0, N):
+    for _ in range(N):
+        for _ in range(N):
             sum += 1
 
     kernel = np.ones((5,5), np.uint8)
@@ -57,14 +57,22 @@ while True:
     fps  = num_frames / seconds
     #print("Estimated frames per second : {0}".format(fps))
 
-    cv2.putText(fgMask, "FPS: " + str(round(fps)), (50,50), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,255,255))
+    cv2.putText(
+        fgMask,
+        f"FPS: {str(round(fps))}",
+        (50, 50),
+        cv2.FONT_HERSHEY_SIMPLEX,
+        1.5,
+        (255, 255, 255),
+    )
+
 
     cv2.imshow('fgMask', fgMask)
 
 
 
     keyboard = cv2.waitKey(30)
-    if keyboard == 'q' or keyboard == 27:
+    if keyboard in ['q', 27]:
         break
 
 

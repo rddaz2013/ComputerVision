@@ -18,7 +18,7 @@ with mp_holistic.Holistic(
     while cap.isOpened():
 
         success, image = cap.read()
-       
+
         start = time.time()
 
 

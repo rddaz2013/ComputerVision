@@ -11,14 +11,17 @@ from tqdm import tqdm
 
 class VisualOdometry():
     def __init__(self, data_dir):
-        self.K_l, self.P_l, self.K_r, self.P_r = self._load_calib(data_dir + '/calib.txt')
-        self.gt_poses = self._load_poses(data_dir + '/poses.txt')
-        self.images_l = self._load_images(data_dir + '/image_l')
-        self.images_r = self._load_images(data_dir + '/image_r')
+        self.K_l, self.P_l, self.K_r, self.P_r = self._load_calib(
+            f'{data_dir}/calib.txt'
+        )
+
+        self.gt_poses = self._load_poses(f'{data_dir}/poses.txt')
+        self.images_l = self._load_images(f'{data_dir}/image_l')
+        self.images_r = self._load_images(f'{data_dir}/image_r')
 
         block = 11
-        P1 = block * block * 8
-        P2 = block * block * 32
+        P1 = block**2 * 8
+        P2 = block**2 * 32
         self.disparity = cv2.StereoSGBM_create(minDisparity=0, numDisparities=32, blockSize=block, P1=P1, P2=P2)
         self.disparities = [
             np.divide(self.disparity.compute(self.images_l[0], self.images_r[0]).astype(np.float32), 16)]
@@ -68,7 +71,7 @@ class VisualOdometry():
         """
         poses = []
         with open(filepath, 'r') as f:
-            for line in f.readlines():
+            for line in f:
                 T = np.fromstring(line, dtype=np.float64, sep=' ')
                 T = T.reshape(3, 4)
                 T = np.vstack((T, [0, 0, 0, 1]))
@@ -89,8 +92,7 @@ class VisualOdometry():
         images (list): grayscale images. Shape (n, height, width)
         """
         image_paths = [os.path.join(filepath, file) for file in sorted(os.listdir(filepath))]
-        images = [cv2.imread(path, cv2.IMREAD_GRAYSCALE) for path in image_paths]
-        return images
+        return [cv2.imread(path, cv2.IMREAD_GRAYSCALE) for path in image_paths]
 
     @staticmethod
     def _form_transf(R, t):
@@ -155,9 +157,7 @@ class VisualOdometry():
         # Un-homogenize
         q2_pred = q2_pred[:, :2].T / q2_pred[:, 2]
 
-        # Calculate the residuals
-        residuals = np.vstack([q1_pred - q1.T, q2_pred - q2.T]).flatten()
-        return residuals
+        return np.vstack([q1_pred - q1.T, q2_pred - q2.T]).flatten()
 
     def get_tiled_keypoints(self, img, tile_h, tile_w):
         """
@@ -363,9 +363,7 @@ class VisualOdometry():
         R, _ = cv2.Rodrigues(r)
         # Get the translation vector
         t = out_pose[3:]
-        # Make the transformation matrix
-        transformation_matrix = self._form_transf(R, t)
-        return transformation_matrix
+        return self._form_transf(R, t)
 
     def get_pose(self, i):
         """
@@ -397,9 +395,7 @@ class VisualOdometry():
         # Calculate the 3D points
         Q1, Q2 = self.calc_3d(tp1_l, tp1_r, tp2_l, tp2_r)
 
-        # Estimate the transformation matrix
-        transformation_matrix = self.estimate_pose(tp1_l, tp2_l, Q1, Q2)
-        return transformation_matrix
+        return self.estimate_pose(tp1_l, tp2_l, Q1, Q2)
 
 
 def main():
@@ -418,8 +414,12 @@ def main():
             cur_pose = np.matmul(cur_pose, transf)
         gt_path.append((gt_pose[0, 3], gt_pose[2, 3]))
         estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
-    plotting.visualize_paths(gt_path, estimated_path, "Stereo Visual Odometry",
-                             file_out=os.path.basename(data_dir) + ".html")
+    plotting.visualize_paths(
+        gt_path,
+        estimated_path,
+        "Stereo Visual Odometry",
+        file_out=f"{os.path.basename(data_dir)}.html",
+    )
 
 
 if __name__ == "__main__":

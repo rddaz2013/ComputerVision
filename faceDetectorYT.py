@@ -22,7 +22,7 @@ with mp_facedetector.FaceDetection(min_detection_confidence=0.7) as face_detecti
 
         # Process the image and find faces
         results = face_detection.process(image)
-        
+
         # Convert the image color back so it can be displayed
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
 

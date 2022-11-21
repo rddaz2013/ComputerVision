@@ -34,9 +34,7 @@ def draw_hsv(flow):
     hsv[...,0] = ang*(180/np.pi/2)
     hsv[...,1] = 255
     hsv[...,2] = np.minimum(v*4, 255)
-    bgr = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-
-    return bgr
+    return cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
 
 
 

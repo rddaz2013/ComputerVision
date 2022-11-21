@@ -35,9 +35,9 @@ with faceDetector.FaceDetection(
     # Draw the face detection annotations on the image.
     image.flags.writeable = True
     image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
- 
+
     if results.detections:
-      for id, detection in enumerate(results.detections):
+      for detection in results.detections:
         drawing.draw_detection(image, detection)
 
     end = time.time()

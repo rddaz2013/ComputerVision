@@ -66,7 +66,7 @@ for image in glob.glob('undistorted*.png'):
 
         k = cv.waitKey(0) & 0xFF
         if k == ord('s'):
-            cv.imwrite('pose'+image, img)
+            cv.imwrite(f'pose{image}', img)
 
 
 

@@ -53,7 +53,7 @@ class VisualOdometry():
         """
         poses = []
         with open(filepath, 'r') as f:
-            for line in f.readlines():
+            for line in f:
                 T = np.fromstring(line, dtype=np.float64, sep=' ')
                 T = T.reshape(3, 4)
                 T = np.vstack((T, [0, 0, 0, 1]))
@@ -117,9 +117,7 @@ class VisualOdometry():
         # Find the matches there do not have a to high distance
         good = []
         try:
-            for m, n in matches:
-                if m.distance < 0.8 * n.distance:
-                    good.append(m)
+            good.extend(m for m, n in matches if m.distance < 0.8 * n.distance)
         except ValueError:
             pass
 
@@ -156,9 +154,7 @@ class VisualOdometry():
         # Decompose the Essential matrix into R and t
         R, t = self.decomp_essential_mat(E, q1, q2)
 
-        # Get transformation matrix
-        transformation_matrix = self._form_transf(R, np.squeeze(t))
-        return transformation_matrix
+        return self._form_transf(R, np.squeeze(t))
 
     def decomp_essential_mat(self, E, q1, q2):
         """
@@ -240,7 +236,12 @@ def main():
             cur_pose = np.matmul(cur_pose, np.linalg.inv(transf))
         gt_path.append((gt_pose[0, 3], gt_pose[2, 3]))
         estimated_path.append((cur_pose[0, 3], cur_pose[2, 3]))
-    plotting.visualize_paths(gt_path, estimated_path, "Visual Odometry", file_out=os.path.basename(data_dir) + ".html")
+    plotting.visualize_paths(
+        gt_path,
+        estimated_path,
+        "Visual Odometry",
+        file_out=f"{os.path.basename(data_dir)}.html",
+    )
 
 
 if __name__ == "__main__":

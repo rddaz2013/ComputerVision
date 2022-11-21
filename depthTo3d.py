@@ -102,7 +102,7 @@ for i in range(len(objpoints)):
     error = cv.norm(imgpointsL[i], imgpoints2, cv.NORM_L2)/len(imgpoints2)
     mean_error += error
 
-print("total error: {}".format(mean_error/len(objpoints)))
+print(f"total error: {mean_error / len(objpoints)}")
 
 
 
@@ -138,16 +138,15 @@ imgL = cv.imread('images/stereoLeft/left10.jpg', cv.IMREAD_GRAYSCALE)
 imgR = cv.imread('images/stereoRight/right10.jpg', cv.IMREAD_GRAYSCALE)
 
 # Show the frames
-cv.imshow("frame right", imgR) 
+cv.imshow("frame right", imgR)
 cv.imshow("frame left", imgL)
 
 
- # Undistort and rectify images
 imgR = cv.remap(imgR, stereoMapR_x, stereoMapR_y, cv.INTER_LANCZOS4, cv.BORDER_CONSTANT, 0)
 imgL = cv.remap(imgL, stereoMapL_x, stereoMapL_y, cv.INTER_LANCZOS4, cv.BORDER_CONSTANT, 0)
-                    
+
 # Show the frames
-cv.imshow("frame right", imgR) 
+cv.imshow("frame right", imgR)
 cv.imshow("frame left", imgL)
 
 

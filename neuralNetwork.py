@@ -37,8 +37,7 @@ class PencilDetection:
         Loads Yolo5 model from pytorch hub.
         :return: Trained Pytorch model.
         """
-        model = torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
-        return model
+        return torch.hub.load('ultralytics/yolov5', 'yolov5s', pretrained=True)
 
     def score_frame(self, frame):
         """

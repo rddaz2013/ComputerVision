@@ -3,23 +3,23 @@ import time
 import numpy as np
 
 
- 
+
 # Load the COCO class names
 with open('models/Object/object_detection_classes_coco.txt', 'r') as f:
    class_names = f.read().split('\n')
 
 print(class_names)
- 
+
 # Get a different colors for each of the classes
 colors = np.random.uniform(0, 255, size=(len(class_names), 3))
- 
+
 # Load the DNN model
 model = cv2.dnn.readNet(model='models/Object/frozen_inference_graph.pb', config='models/Object/ssd_mobilenet_v2_coco_2018_03_29.pbtxt.txt', framework='TensorFlow')
 
 # Set backend and target to CUDA to use GPU
 model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
- 
+
 # Webcam
 cap = cv2.VideoCapture(0)
 
@@ -44,7 +44,7 @@ while cap.isOpened():
 
     # Make forward pass in model
     output = model.forward()
- 
+
     # End time
     end = time.time()
 
@@ -75,17 +75,17 @@ while cap.isOpened():
             cv2.putText(img, class_name, (int(bboxX), int(bboxY - 5)), cv2.FONT_HERSHEY_SIMPLEX, 1, color, 2)
 
 
-    
+
     # Show FPS
     cv2.putText(img, f"{fps:.2f} FPS", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    
+
     cv2.imshow('image', img)
 
 
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
- 
+
 
 cap.release()
 cv2.destroyAllWindows()

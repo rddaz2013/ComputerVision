@@ -36,12 +36,12 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=0) as selfie_segm
         image.flags.writeable = True
 
         image = cv2.cvtColor(image, cv2.COLOR_RGB2BGR)
-        
+
         # Draw selfie segmentation on the background image.
         # To improve segmentation around boundaries, consider applying a joint
         # bilateral filter to "results.segmentation_mask" with "image".
         condition = np.stack((results.segmentation_mask,) * 3, axis=-1) > 0.95
-        
+
         # The background can be customized.
         #   a) Load an image (with the same width and height of the input image) to
         #      be the background, e.g., bg_image = cv2.imread('/path/to/image/file')
@@ -50,7 +50,7 @@ with mp_selfie_segmentation.SelfieSegmentation(model_selection=0) as selfie_segm
         if bg_image is None:
             #bg_image = np.zeros(image.shape, dtype=np.uint8)
             #bg_image[:] = BG_COLOR
-            
+
             # a)
 
             bg_image = cv2.imread('office.jpg')

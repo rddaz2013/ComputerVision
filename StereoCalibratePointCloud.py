@@ -103,7 +103,7 @@ for i in range(len(objpoints)):
     mean_error += error
 
 
-print("total error: {}".format(mean_error/len(objpoints)))
+print(f"total error: {mean_error / len(objpoints)}")
 
 
 

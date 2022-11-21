@@ -84,7 +84,7 @@ while True:
     end = time.time()
     # calculate the FPS for current frame detection
     fps = 1 / (end-start)
-    
+
     # Show Results
     cv2.putText(img, f"{fps:.2f} FPS", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.imshow('Optical Flow', img)

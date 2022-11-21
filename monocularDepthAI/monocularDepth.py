@@ -21,7 +21,7 @@ if (model.empty()):
 # Set backend and target to CUDA to use GPU
 model.setPreferableBackend(cv2.dnn.DNN_BACKEND_CUDA)
 model.setPreferableTarget(cv2.dnn.DNN_TARGET_CUDA)
- 
+
 # Webcam
 cap = cv2.VideoCapture(0)
 
@@ -52,7 +52,7 @@ while cap.isOpened():
 
     # Make forward pass in model
     output = model.forward()
-    
+
     output = output[0,:,:]
     output = cv2.resize(output, (imgWidth, imgHeight))
 
@@ -67,7 +67,7 @@ while cap.isOpened():
     fps = 1 / (end-start)
     # Show FPS
     cv2.putText(img, f"{fps:.2f} FPS", (20, 30), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
-    
+
     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
 
     cv2.imshow('image', img)
@@ -77,7 +77,7 @@ while cap.isOpened():
     if cv2.waitKey(10) & 0xFF == ord('q'):
         break
 
- 
+
 
 cap.release()
 cv2.destroyAllWindows()

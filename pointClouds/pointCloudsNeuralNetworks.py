@@ -6,13 +6,9 @@ from matplotlib import pyplot as plt
         
 #Function that Downsamples image x number (reduce_factor) of times. 
 def downsample_image(image, reduce_factor):
-	for i in range(0,reduce_factor):
+	for _ in range(reduce_factor):
 		#Check if image is color or grayscale
-		if len(image.shape) > 2:
-			row,col = image.shape[:2]
-		else:
-			row,col = image.shape
-
+		row,col = image.shape[:2] if len(image.shape) > 2 else image.shape
 		image = cv2.pyrDown(image, dstsize= (col//2, row // 2))
 	return image
 
@@ -41,7 +37,7 @@ cv_file = cv2.FileStorage()
 cv_file.open('stereoMap.xml', cv2.FileStorage_READ)
 
 Q = cv_file.getNode('q').mat()
- 
+
 # Webcam
 cap = cv2.VideoCapture(0)
 

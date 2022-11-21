@@ -20,11 +20,11 @@ with mp_hands.Hands(
     while cap.isOpened():
 
         success, image = cap.read()
-        
+
         h, w, c = image.shape
 
         start = time.perf_counter()
-   
+
 
         # Flip the image horizontally for a later selfie-view display
         # Convert the BGR image to RGB.
@@ -48,13 +48,13 @@ with mp_hands.Hands(
             mp_drawing.draw_landmarks(
                 image, hand_landmarks, mp_hands.HAND_CONNECTIONS, mp_drawing_styles.get_default_hand_landmarks_style(),
             mp_drawing_styles.get_default_hand_connections_style())
-            
-            
+
+
             index_finger_tip = hand_landmarks.landmark[0]
-            
+
             index_finger_tip_x = index_finger_tip.x * w
             index_finger_tip_y = index_finger_tip.y * h
-            
+
             if index_finger_tip_x > w/2:
                 cv2.putText(image, "Gas", (500,70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (0,255,0), 2)
                 pyautogui.keyDown('right')
@@ -63,7 +63,7 @@ with mp_hands.Hands(
                 cv2.putText(image, "Brake", (500,70), cv2.FONT_HERSHEY_SIMPLEX, 1.5, (255,0,0), 2)
                 pyautogui.keyDown('left')
                 pyautogui.keyUp('right')
-            
+
 
         cv2.line(image, (int(w/2), 0), (int(w/2), h), (0, 255, 0), 2)
 

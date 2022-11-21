@@ -35,7 +35,7 @@ while cap.isOpened():
 
     fps = 1 / totalTime
     #print("FPS: ", fps)
-    
+
 
     img3 = cv2.drawMatches(img1, keypoints_1, img2, keypoints_2, matches[:300], img2, flags=2)
     #plt.imshow(img3),plt.show()

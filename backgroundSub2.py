@@ -6,8 +6,7 @@ def resize(dst,img):
 	width = img.shape[1]
 	height = img.shape[0]
 	dim = (width, height)
-	resized = cv.resize(dst, dim, interpolation = cv.INTER_AREA)
-	return resized
+	return cv.resize(dst, dim, interpolation = cv.INTER_AREA)
 
 
 video = cv.VideoCapture(0, cv.CAP_DSHOW)

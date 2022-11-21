@@ -31,14 +31,14 @@ id = 1
 
 arucoDict = cv2.aruco.Dictionary_get(ARUCO_DICT[aruco_type])
 
-print("ArUCo type '{}' with ID '{}'".format(aruco_type, id))
+print(f"ArUCo type '{aruco_type}' with ID '{id}'")
 tag_size = 250
 tag = np.zeros((tag_size, tag_size, 1), dtype="uint8")
 cv2.aruco.drawMarker(arucoDict, id, tag_size, tag, 1)
 
 # Save the tag g
 # enerated
-tag_name = "arucoMarkers/" + aruco_type + "_" + str(id) + ".png"
+tag_name = f"arucoMarkers/{aruco_type}_{id}.png"
 cv2.imwrite(tag_name, tag)
 cv2.imshow("ArUCo Tag", tag)
 
